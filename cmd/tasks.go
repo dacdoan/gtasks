@@ -92,7 +92,7 @@ var viewTasksCmd = &cobra.Command{
 			}
 			if sep && now.Before(due) {
 				sep = false
-				table.Append([]string{"-", "-", "-", "-"})
+				table.Append([]string{"", "", "", ""})
 			}
 
 			table.Append(row)
