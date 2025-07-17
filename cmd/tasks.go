@@ -63,12 +63,15 @@ var viewTasksCmd = &cobra.Command{
 		utils.Sort(tasks, viewTasksFlags.sort)
 
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"No", "Title", "Description", "Status", "Due"})
+		table.SetHeader([]string{"No", "Title", "Description", "Due"})
 		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.SetBorder(false)
 		table.SetCenterSeparator("|")
 		table.SetRowLine(false)
 		table.SetRowSeparator("-")
+
+		now := time.Now()
+		sep := true
 
 		for ind, task := range tasks {
 			if viewTasksFlags.onlyCompleted && task.Status == "needsAction" {
@@ -77,17 +80,19 @@ var viewTasksCmd = &cobra.Command{
 
 			row := []string{fmt.Sprintf("%d", ind+1), task.Title, task.Notes}
 
-			if task.Status == "needsAction" {
-				row = append(row, "✖")
-			} else if task.Status == "completed" {
-				row = append(row, "✔")
-			}
-
 			due, err := time.Parse(time.RFC3339, task.Due)
 			if err != nil {
 				row = append(row, "-")
 			} else {
-				row = append(row, due.Local().Format("02 January 2006"))
+				format := "02 January 2006"
+				if due.Before(now) {
+					format = "Mon, Jan 02 15:04"
+				}
+				row = append(row, due.Local().Format(format))
+			}
+			if sep && now.Before(due) {
+				sep = false
+				table.Append([]string{"-", "-", "-", "-"})
 			}
 
 			table.Append(row)
