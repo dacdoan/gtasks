@@ -86,7 +86,7 @@ var viewTasksCmd = &cobra.Command{
 			} else {
 				format := "02 January 2006"
 				if due.Before(now) {
-					format = "Mon, Jan 02 15:04"
+					format = "Mon, Jan 02"
 				}
 				row = append(row, due.Local().Format(format))
 			}
