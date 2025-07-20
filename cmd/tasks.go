@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"runtime"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/BRO3886/gtasks/api"
+	"github.com/BRO3886/gtasks/internal/config"
 	"github.com/BRO3886/gtasks/internal/utils"
 	"github.com/araddon/dateparse"
 	"github.com/fatih/color"
@@ -312,9 +314,26 @@ func getTaskIndex(args []string, tasks []*tasks.Task, title string) int {
 }
 
 func getTaskLists(srv *tasks.Service) tasks.TaskList {
-	list, err := api.GetTaskLists(srv)
-	if err != nil {
-		utils.ErrorP("Error %v", err)
+	var list []tasks.TaskList
+
+	folderPath := config.GetInstallLocation()
+	file := folderPath + "/lists.json"
+	f, err := os.Open(file)
+	if err == nil {
+		json.NewDecoder(f).Decode(&list)
+		defer f.Close()
+	} else {
+		onlineList, err := api.GetTaskLists(srv)
+		if err != nil {
+			utils.ErrorP("Error %v", err)
+		} else {
+			f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+			if err == nil {
+				defer f.Close()
+				json.NewEncoder(f).Encode(onlineList)
+			}
+			list = onlineList
+		}
 	}
 
 	if len(list) == 1 {
