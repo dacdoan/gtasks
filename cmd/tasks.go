@@ -317,6 +317,10 @@ func getTaskLists(srv *tasks.Service) tasks.TaskList {
 		utils.ErrorP("Error %v", err)
 	}
 
+	if len(list) == 1 {
+		return list[0]
+	}
+
 	sort.SliceStable(list, func(i, j int) bool {
 		return list[i].Title <= list[j].Title
 	})
