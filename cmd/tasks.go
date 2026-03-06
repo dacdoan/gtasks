@@ -65,7 +65,7 @@ var viewTasksCmd = &cobra.Command{
 		utils.Sort(tasks, viewTasksFlags.sort)
 
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"No", "Title", "Description", "Due"})
+		table.SetHeader([]string{"No", "Title", "Due"})
 		table.SetAlignment(tablewriter.ALIGN_LEFT)
 		table.SetBorder(false)
 		table.SetCenterSeparator("|")
@@ -80,7 +80,7 @@ var viewTasksCmd = &cobra.Command{
 				continue
 			}
 
-			row := []string{fmt.Sprintf("%d", ind+1), task.Title, task.Notes}
+			row := []string{fmt.Sprintf("%d", ind+1), task.Title}
 
 			due, err := time.Parse(time.RFC3339, task.Due)
 			if err != nil {
@@ -94,7 +94,7 @@ var viewTasksCmd = &cobra.Command{
 			}
 			if sep && now.Before(due) {
 				sep = false
-				table.Append([]string{"", "", "", ""})
+				table.Append([]string{"", "", ""})
 			}
 
 			table.Append(row)
